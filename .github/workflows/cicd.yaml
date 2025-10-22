@@ -1,0 +1,49 @@
+name: Data Pipeline CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.5
+
+      # 3️⃣ Configure AWS credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 4️⃣ Terraform Init
+      - name: Terraform Init
+        run: terraform init
+
+      # 5️⃣ Terraform Plan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      # 6️⃣ Terraform Apply
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+      # 7️⃣ Upload Glue Script to S3
+      - name: Upload Glue Script to S3
+        run: aws s3 cp ./modules/Glue/scripts/transform.py s3://ogoma-glue-scripts/scripts/transform.py
+
+      # 8️⃣ Trigger Glue Job
+      - name: Trigger Glue Job
+        run: aws glue start-job-run --job-name ogoma-data-transformation

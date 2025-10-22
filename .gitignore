@@ -1,0 +1,45 @@
+# === Terraform ===
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.tfvars
+terraform.tfvars.json
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.zip
+*.log
+*.env
+.env
+*.egg-info/
+
+# === AWS / Credentials ===
+.aws/
+*.pem
+*.key
+*.crt
+*.csv
+
+# === VSCode / IDE ===
+.vscode/
+.idea/
+.DS_Store
+
+# === GitHub Actions Cache ===
+node_modules/
+dist/
+build/
+
+# === Project specific ===
+data/
+tmp/
+output/
+
+#
