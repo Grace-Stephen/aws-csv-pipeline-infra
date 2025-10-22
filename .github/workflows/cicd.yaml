@@ -46,4 +46,4 @@ jobs:
 
       # 8️⃣ Trigger Glue Job
       - name: Trigger Glue Job
-        run: aws glue start-job-run --job-name ogoma-data-transformation
+        run: aws glue start-job-run --job-name ogoma_data_transformation
