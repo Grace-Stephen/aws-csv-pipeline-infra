@@ -34,14 +34,22 @@ Below is a breakdown of the architecture and how each AWS component interacts:
 8. GitHub Actions – Automates Terraform commands and Glue job execution through CI/CD workflows.
 
 Tools and Technologies
-Category	: Tool
-Infrastructure as Code:	Terraform
-CI/CD Automation:	GitHub Actions
-Data Processing:	AWS Glue
-Event-Driven Computing:	AWS Lambda
-Storage:	Amazon S3
-Identity & Access Management:	AWS IAM
-Programming Language:	Python (for Lambda and Glue script)
+
+Category - Tool
+
+Infrastructure as Code - Terraform
+
+CI/CD Automation - GitHub Actions
+
+Data Processing - AWS Glue
+
+Event-Driven Computing - AWS Lambda
+
+Storage - Amazon S3
+
+Identity & Access Management - AWS IAM
+
+Programming Language - Python (for Lambda and Glue script)
 
 Repository Structure
 
