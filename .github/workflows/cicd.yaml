@@ -47,3 +47,7 @@ jobs:
       # 8️⃣ Trigger Glue Job
       - name: Trigger Glue Job
         run: aws glue start-job-run --job-name ogoma_data_transformation
+
+        # 6️⃣ Terraform destroy
+      - name: Terraform Destroy
+        run: terraform destroy -y
