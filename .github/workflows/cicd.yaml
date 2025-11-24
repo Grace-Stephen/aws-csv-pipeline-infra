@@ -32,6 +32,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      # BUILD LAMBDA ZIP
+      - name: Zip Lambda
+        run: |
+          cd lambda_code
+          zip -r lambda.zip index.py
+
+
       # # 5️⃣ Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
