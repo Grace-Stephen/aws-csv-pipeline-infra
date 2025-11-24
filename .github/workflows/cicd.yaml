@@ -33,23 +33,23 @@ jobs:
         run: terraform init
 
       # # 5️⃣ Terraform Plan
-      # - name: Terraform Plan
-      #   run: terraform plan -out=tfplan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
 
       # # 6️⃣ Terraform Apply
-      # - name: Terraform Apply
-      #   run: terraform apply -auto-approve tfplan
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
 
-      # # 7️⃣ Upload Glue Script to S3
-      # - name: Upload Glue Script to S3
-      #   run: aws s3 cp ./modules/Glue/scripts/transform.py s3://ogoma-glue-scripts/scripts/transform.py
+      # 7️⃣ Upload Glue Script to S3
+      - name: Upload Glue Script to S3
+        run: aws s3 cp ./modules/Glue/scripts/transform.py s3://ogoma-glue-scripts/scripts/transform.py
 
-      # # 8️⃣ Trigger Glue Job
-      # - name: Trigger Glue Job
-      #   run: aws glue start-job-run --job-name ogoma_data_transformation
+      # 8️⃣ Trigger Glue Job
+      - name: Trigger Glue Job
+        run: aws glue start-job-run --job-name ogoma_data_transformation
 
-        # 6️⃣ Terraform destroy
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+      #   # 6️⃣ Terraform destroy
+      # - name: Terraform Destroy
+      #   run: terraform destroy -auto-approve
 
         ##

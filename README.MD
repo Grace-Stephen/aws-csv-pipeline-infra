@@ -1,125 +1,140 @@
-AWS Serverless Data Pipeline — Automated CSV Transformation with Terraform and GitHub Actions
+AWS Serverless CSV Pipeline — Automated Ingestion & Semi-Automated Transformation (Terraform + GitHub Actions)
+
 Overview
 
-This project implements a fully automated, serverless data pipeline on AWS using Terraform for infrastructure provisioning and GitHub Actions for CI/CD automation. The pipeline is designed to extract raw CSV data from S3, transform it using AWS Glue, and store the processed output back into another S3 bucket, making it immediately ready for analytics and visualization tools like Amazon QuickSight.
+This project implements a serverless data ingestion pipeline on AWS using Terraform for infrastructure provisioning and GitHub Actions for deployment automation.
+The pipeline ingests raw CSV files uploaded to S3, preprocesses them using AWS Lambda, and prepares them for downstream transformation using AWS Glue.
 
-This setup removes manual intervention by automating the entire workflow from infrastructure deployment to data transformation.
+While the pipeline automated infrastructure provisioning and raw-data ingestion, it was not fully automated end-to-end.
+The Glue crawler and Glue job required manual triggering, which is one of the limitations addressed in the later Shopify Warehouse Data Pipeline project.
+
+This project serves as the foundational version, demonstrating how to combine Terraform, Lambda, and S3 event notifications to automate ingestion with minimal console interaction.
+
 
 Key Objectives
 
-- Build a scalable, cost-efficient, and fully automated data pipeline using serverless AWS services.
+- Provision a serverless data pipeline using AWS-managed services
 
-- Demonstrate infrastructure automation with Terraform and deployment automation with GitHub Actions.
+- Automate infrastructure deployment using Terraform
 
-- Show how a pipeline can be triggered automatically on data uploads without human involvement.
+- Trigger preprocessing automatically upon CSV upload
 
-Architecture Summary
+- Prepare data for ETL using AWS Glue
 
-Below is a breakdown of the architecture and how each AWS component interacts:
+- Demonstrate CI/CD integration with GitHub Actions
 
-1. Amazon S3 (Raw Data Bucket) – Stores incoming raw CSV files.
+Architecture
 
-2. S3 Event Trigger - Triggers AWS Lambda once data lands in the raw data bucket.
+Pipeline Flow
 
-3. AWS Lambda – Automatically processes the raw data and uploads it to the processed data bucket.
+1. Amazon S3 — Raw Bucket
+Users upload raw CSV files manually or programmatically.
 
-4. AWS Glue – Transforms the preprocessed CSV data (e.g., cleaning, restructuring) and writes the output into the final data S3 bucket.
+2. S3 Event Notifications
+Automatically trigger a Lambda function whenever a file is uploaded.
 
-5. Amazon S3 (Processed Data Bucket) – Stores processed data, ready for transformation by AWS Glue.
+3. AWS Lambda (Preprocessing)
 
-6. Amazon S3 (Final Data Bucket) – Stores transformed data, ready for visualization or downstream analytics.
+- Validates / cleans raw CSVs
 
-7. Terraform – Defines all infrastructure (S3 buckets, IAM roles, Lambda function, Glue job, event triggers) as code.
+- Saves preprocessed output to a processed S3 bucket
 
-8. GitHub Actions – Automates Terraform commands and Glue job execution through CI/CD workflows.
+4. Amazon S3 — Processed Bucket
+Stores Lambda output for consumption by AWS Glue.
 
-Tools and Technologies
+5. AWS Glue (Crawler + Job)
 
-Category - Tool
+- The Glue crawler catalogs the processed data
 
-Infrastructure as Code - Terraform
+- The Glue ETL script transforms and outputs final results
+These steps were manually triggered in this project.
 
-CI/CD Automation - GitHub Actions
+6. Terraform
 
-Data Processing - AWS Glue
+Automates all infrastructure provisioning
 
-Event-Driven Computing - AWS Lambda
+7. GitHub Actions
 
-Storage - Amazon S3
+- Automates Terraform deployment
 
-Identity & Access Management - AWS IAM
+- Automates upload of Glue scripts to the scripts bucket
 
-Programming Language - Python (for Lambda and Glue script)
+Key Features
+AUTOMATED
 
-Repository Structure
+- Terraform IaC for S3, IAM, Lambda, Glue
 
-- modules/ – Each module defines an independent resource group (IAM, Lambda, Glue, etc.).
+- Lambda triggered automatically by S3 events
 
-- glue_script/ – Contains the Glue ETL script that performs the CSV transformation.
+- GitHub Actions workflow to apply Terraform and sync Glue scripts
 
-- lambda_code/ - Contains the lambda function code that preprocesses the raw data.
+SEMI-AUTOMATED
 
-- .github/workflows/ – Defines automation pipelines for both Terraform and data processing.
+- Running Glue crawler
 
-CI/CD Workflow
-1. Terraform Automation
+- Running Glue ETL job
 
-Whenever a commit is pushed to the main branch:
+MANUAL COMPONENTS
 
-GitHub Actions runs terraform init, plan, and apply.
+- Executing Glue job
 
-The backend configuration stores Terraform state in an S3 bucket for remote management.
+- Triggering Glue crawler
 
-This ensures the entire AWS infrastructure is created or updated automatically.
+CI/CD Workflow Summary
+1. Terraform Automation (GitHub Actions)
 
-2. Transformation Script Upload
+On push to main:
 
-A separate GitHub Action runs:
+- terraform init
 
-aws s3 cp ./modules/Glue/scripts/transform.py s3://ogoma-glue-scripts/scripts/transform.py
+- terraform plan
 
-This command automatically uploads the transformation script to the Glue Script S3 bucket. This transformation script defines how AWS Glue transforms and stores the transformed data.
+- terraform apply
 
-3. Glue Job Execution
+State stored in S3 backend.
 
-A separate GitHub Action runs:
+2. Glue Script Automatic Upload
 
-aws glue start-job-run --job-name <job_name>
+A separate workflow syncs the ETL script to the scripts bucket:
+"aws s3 cp ./modules/Glue/scripts/transform.py s3://ogoma-glue-scripts/scripts/transform.py
+"
 
+3. Data Flow After Provisioning
 
-This command automatically starts the Glue transformation job after infrastructure provisioning or whenever needed — eliminating manual triggers.
+- Upload a CSV to raw-data-bucket/
 
+- S3 triggers Lambda
 
-Automated Data Processing after Infrastructure Provisioning
+- Lambda preprocesses data and stores output in processed-data-bucket/
 
-- Upload a raw CSV file to the raw-data S3 bucket.
+- (Manual) Run Glue crawler
 
-- S3 event triggers Lambda to process the raw data and store it in the processed data bucket for further transformation. 
+- (Manual) Start Glue ETL job
 
-- Lambda processes the data and stores it in the processed data bucket.
-
-- The pipeline triggers the Glue job to run.
-
-- The transformed output appears in the final-data S3 bucket.
+- ETL writes output to final-data-bucket/
 
 
 Learning Highlights
 
-This project deepened my understanding of:
+Through this project, I gained experience in:
 
-- Designing modular Terraform infrastructure for serverless pipelines.
+- Structuring serverless pipelines using modular Terraform
 
-- Configuring Lambda-S3 event triggers for automation.
+- Implementing S3 → Lambda event-driven ingestion
 
-- Managing IAM permissions to ensure least privilege access.
+- Understanding Glue crawlers, jobs, and scripts
 
-- Deploying AWS Glue jobs with Terraform and running them via GitHub Actions.
+- Managing IAM least-privilege roles for serverless apps
 
-- Handling real-world CI/CD issues like naming conventions, S3 backend configuration, and resource reference mismatches.
+- Using GitHub Actions for IaC automation
+
+- Debugging issues around S3 backend, resource references and dependencies
 
 
 Conclusion
 
-This project is more than a simple AWS setup, it’s a demonstration of how infrastructure as code, serverless design, and CI/CD pipelines can work together to create an automated, production-ready data workflow.
+This AWS CSV Pipeline project demonstrates the core principles of serverless ingestion, IaC automation, and event-driven processing.
 
-By fully automating deployment and transformation, this pipeline proves that even complex data processes can be simplified with the right tools and structure.
+While not fully automated, it provides a clear, modular, and extensible foundation on which more advanced pipelines (like the Shopify Warehouse Project) are built.
+
+It is a solid starting point for understanding real-world cloud ETL workflows and evolving them toward production-grade orchestration.
